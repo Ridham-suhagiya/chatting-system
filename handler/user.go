@@ -4,15 +4,15 @@ import (
 	"chatting-system-backend/databaseServiceMapper"
 	"chatting-system-backend/model"
 	"chatting-system-backend/service"
+	"chatting-system-backend/utils"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 )
 
 func CreateUserHandler() http.HandlerFunc {
-	serviceMapper, err := databaseServiceMapper.NewServiceMapper()
+	serviceMapper, _ := databaseServiceMapper.NewServiceMapper()
 	userSeriviceInterface, err := serviceMapper.GetService("user")
 	if err != nil {
 		fmt.Println("Something went wrong in fetching sercvice from service interface.")
@@ -24,14 +24,7 @@ func CreateUserHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
 			w.Header().Set("Content-Type", "application/json")
-			body, err := io.ReadAll(r.Body)
-			if err != nil {
-				http.Error(w, "Unable to read request body", http.StatusInternalServerError)
-				return
-			}
-			var user model.User
-			fmt.Println(string(body))
-			err = json.Unmarshal(body, &user)
+			err := r.ParseMultipartForm(10 << 20)
 			if err != nil {
 				response := map[string]interface{}{
 					"message": err.Error(),
@@ -40,13 +33,28 @@ func CreateUserHandler() http.HandlerFunc {
 				json.NewEncoder(w).Encode(response)
 				return
 			}
+			email := r.FormValue("email")
+			password := r.FormValue("password")
+			username := r.FormValue("username")
+
+			user := &model.User{
+				Username: username,
+				Email:    email,
+				Password: password,
+			}
+
 			err = userService.CreateUser(user)
 			if err != nil {
-				response := map[string]interface{}{
-					"message": err.Error(),
+				fmt.Print(err)
+				headers := map[string]interface{}{
+					"statusCode":  http.StatusUnprocessableEntity,
+					"contentType": "application/json",
 				}
-				w.WriteHeader(http.StatusUnauthorized)
-				json.NewEncoder(w).Encode(response)
+				params := utils.ResponseParams{
+					Header:  headers,
+					Message: "User not created.",
+				}
+				utils.WriteIntoTheResponse(w, params)
 				return
 			}
 			w.WriteHeader(http.StatusCreated)
@@ -60,7 +68,7 @@ func CreateUserHandler() http.HandlerFunc {
 }
 
 func GetUserHandler() http.HandlerFunc {
-	serviceMapper, err := databaseServiceMapper.NewServiceMapper()
+	serviceMapper, _ := databaseServiceMapper.NewServiceMapper()
 	userSeriviceInterface, err := serviceMapper.GetService("user")
 	if err != nil {
 		fmt.Println("Something went wrong in fetching sercvice from service interface.")
@@ -77,7 +85,6 @@ func GetUserHandler() http.HandlerFunc {
 		w.Header().Set("Content-Type", "application/json")
 		userId := strings.TrimPrefix(r.URL.Path, "/user/")
 
-		fmt.Println(userId, "this is user id")
 		user, err := userService.GetUserByID(userId)
 		if err != nil {
 			response := map[string]interface{}{
@@ -93,7 +100,6 @@ func GetUserHandler() http.HandlerFunc {
 			"user":    user,
 		}
 		json.NewEncoder(w).Encode(response)
-		return
 	}
 }
 
@@ -131,7 +137,6 @@ func GetAllUsersHandler() http.HandlerFunc {
 		}
 		w.WriteHeader(http.StatusAccepted)
 		json.NewEncoder(w).Encode(response)
-		return
 	}
 
 }

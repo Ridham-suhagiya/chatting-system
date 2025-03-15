@@ -1,8 +1,10 @@
 CREATE TABLE chat_links (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    generated_by_user_id UUID NOT NULL,
+    user_id UUID NOT NULL,
     link_code VARCHAR(255) NOT NULL,
-    expiration_date TIMESTAMP DEFAULT NULL,
+    expiry_at TIMESTAMP DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     num_users INT DEFAULT 0, 
-    FOREIGN KEY (generated_by_user_id) REFERENCES Users(id)
+    FOREIGN KEY (user_id) REFERENCES Users(id)
 );

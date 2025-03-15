@@ -10,9 +10,11 @@ import (
 
 // UserRepository interface defines the methods to be implemented
 type UserService interface {
-	CreateUser(user model.User) error
+	CreateUser(user *model.User) error
 	GetUserByID(userID string) (*model.User, error)
 	GetAllUsers() (*[]model.User, error)
+	GetUserByEmailId(email string) (*model.User, error)
+	ValidatePassword(user *model.User, password string) bool
 }
 
 // userService struct holds a reference to the database connection
@@ -26,7 +28,7 @@ func NewUserService(db *database.DB) UserService {
 }
 
 // CreateUser method creates a new user in the database
-func (s *userService) CreateUser(user model.User) error {
+func (s *userService) CreateUser(user *model.User) error {
 	fmt.Printf("Creating user: %+v\n", user)
 	return s.DB.Create(&user).Error
 }
@@ -46,4 +48,16 @@ func (s *userService) GetAllUsers() (*[]model.User, error) {
 		return nil, err
 	}
 	return &users, nil
+}
+
+func (s *userService) GetUserByEmailId(email string) (*model.User, error) {
+	var user model.User
+	if err := s.DB.First(&user, `email=?`, email).Error; err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
+func (s *userService) ValidatePassword(user *model.User, password string) bool {
+	return user.Password == password
 }

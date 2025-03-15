@@ -19,12 +19,12 @@ func NewServiceMapper() (DatabaseServiceRepo, error) {
 	var databaseUrl string = os.Getenv("DATABASE_URL")
 	database, err := database.ConnectDatabase(databaseUrl)
 	if err != nil {
-		fmt.Println("something went wrong in connecting to the database")
 		return nil, err
 	}
 	return &DatabaseServiceMapper{
 		services: map[string]interface{}{
 			"user": service.NewUserService(database),
+			"link": service.NewlinkService(database),
 		},
 	}, nil
 }
