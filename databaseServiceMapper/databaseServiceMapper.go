@@ -23,8 +23,9 @@ func NewServiceMapper() (DatabaseServiceRepo, error) {
 	}
 	return &DatabaseServiceMapper{
 		services: map[string]interface{}{
-			"user": service.NewUserService(database),
-			"link": service.NewlinkService(database),
+			"user":    service.NewUserService(database),
+			"link":    service.NewlinkService(database),
+			"message": service.NewMessageService(database),
 		},
 	}, nil
 }

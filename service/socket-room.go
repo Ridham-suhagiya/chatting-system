@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"sync"
 )
 
 type client struct {
@@ -18,6 +19,8 @@ type Client interface {
 	ReadComingMessages(data *bufio.ReadWriter, r *Room)
 	WriteMessageFrames(r *Room)
 }
+
+var mutex sync.Mutex
 
 func (c *client) ReadComingMessages(data *bufio.ReadWriter, r *Room) {
 	for {
@@ -32,6 +35,7 @@ func (c *client) ReadComingMessages(data *bufio.ReadWriter, r *Room) {
 			break
 		}
 		r.Broadcast(decodedData, c.conn)
+		r.WriteMessagesFromChannelToDB(decodedData)
 	}
 }
 
@@ -51,7 +55,9 @@ type RoomMethods interface {
 }
 
 type Room struct {
-	clients map[*client]bool
+	clients        map[*client]bool
+	messageContent chan [][]byte
+	linkId         string
 }
 
 var rooms = make(map[string]*Room)
@@ -59,6 +65,7 @@ var rooms = make(map[string]*Room)
 func CreateRoom(roomId string) RoomMethods {
 	room := &Room{
 		clients: make(map[*client]bool),
+		linkId:  roomId,
 	}
 	rooms[roomId] = room
 	return room
@@ -90,10 +97,19 @@ func (r *Room) LeaveRoom(conn net.Conn) {
 }
 
 func (r *Room) Broadcast(message []byte, currConn net.Conn) error {
+	utils.Mutex.Lock()
+	defer utils.Mutex.Unlock()
 	for client := range r.clients {
 		if r.clients[client] && client.conn != currConn {
 			client.send <- message
 		}
 	}
+	return nil
+}
+
+var MaxByteSize int = 20
+
+func (r *Room) WriteMessagesFromChannelToDB(message []byte) error {
+	InsertMessageContentInFile(message, r.linkId)
 	return nil
 }

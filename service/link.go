@@ -8,6 +8,8 @@ import (
 
 type LinkService interface {
 	CreateLink(link *model.ChatLinks) error
+	GetLinkDetailsUsingLinkCode(linkCode string) (model.ChatLinks, error)
+	GetLinkDetailUsingLinkId(id string) (model.ChatLinks, error)
 }
 
 type linkService struct {

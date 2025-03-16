@@ -9,7 +9,10 @@ import (
 	"math/rand"
 	"net"
 	"net/http"
+	"sync"
 )
+
+var Mutex sync.Mutex
 
 type ResponseParams struct {
 	Message string

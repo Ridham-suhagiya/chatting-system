@@ -1,6 +1,8 @@
 package database
 
 import (
+	"os"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -24,4 +26,9 @@ func ConnectDatabase(databaseUrl string) (*DB, error) {
 		return nil, err
 	}
 	return &DB{db}, nil
+}
+
+func GetDataBaseConnection() (*DB, error) {
+	var databaseUrl string = os.Getenv("DATABASE_URL")
+	return ConnectDatabase(databaseUrl)
 }

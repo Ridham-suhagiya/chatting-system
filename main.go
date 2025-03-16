@@ -19,7 +19,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Web Socket
-	mux.Handle("/ws", handler.WebSocketHandler())
+	go mux.Handle("/ws", handler.WebSocketHandler())
 
 	// User routes
 	mux.Handle("/user", ApplyMiddleWare(handler.CreateUserHandler(), middleware.CORSMiddleware))
@@ -28,6 +28,7 @@ func main() {
 
 	// Link routes
 	mux.Handle("/link", ApplyMiddleWare(handler.CreateLink(), middleware.CheckSession, middleware.CORSMiddleware))
+	mux.Handle("/link/messages/", ApplyMiddleWare(handler.GetLinkMessages(), middleware.CORSMiddleware))
 
 	// Login routes
 	mux.Handle("/login", ApplyMiddleWare(handler.LoginHandler(), middleware.CORSMiddleware))

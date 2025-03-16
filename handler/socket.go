@@ -14,6 +14,7 @@ func WebSocketHandler() http.HandlerFunc {
 			http.Error(w, "Not a WebSocket handshake", http.StatusBadRequest)
 			return
 		}
+		query := r.URL.Query().Get("path")
 		fmt.Println(r.Header)
 		hj, ok := w.(http.Hijacker)
 		if !ok {
@@ -50,7 +51,7 @@ func WebSocketHandler() http.HandlerFunc {
 			fmt.Println("Error sending WebSocket handshake response:", err)
 			return
 		}
-		room := service.GetRoom("someroom")
+		room := service.GetRoom(query)
 		room.JoinRoom(conn, data)
 	}
 }
