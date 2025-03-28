@@ -1,4 +1,4 @@
-DB_URL ?= $(shell printenv DB_URL)
+DB_URL ?= $(shell printenv DATABASE_URL)
 
 migrate-up:
 	migrate -path ./migrations -database "$(DB_URL)" -verbose up
