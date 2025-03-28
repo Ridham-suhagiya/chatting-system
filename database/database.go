@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -12,6 +13,7 @@ type DB struct {
 }
 
 func ConnectDatabase(databaseUrl string) (*DB, error) {
+	fmt.Println(databaseUrl, "this is the databse url")
 	db, error := gorm.Open(postgres.Open(databaseUrl), &gorm.Config{})
 	if error != nil {
 		return nil, error
