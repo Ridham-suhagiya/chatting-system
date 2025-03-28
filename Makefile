@@ -1,4 +1,4 @@
-DB_URL="postgresql://localhost:5432/chatting-system?sslmode=disable"
+DB_URL ?= $(shell printenv DB_URL)
 
 migrate-up:
 	migrate -path ./migrations -database "$(DB_URL)" -verbose up
