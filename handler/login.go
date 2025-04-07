@@ -71,6 +71,7 @@ func LoginHandler() http.HandlerFunc {
 		}
 
 		if !userService.ValidatePassword(user, password) {
+			fmt.Println("this is not an erorr", user, err, password)
 			headers := map[string]interface{}{
 				"statusCode":  http.StatusNotFound,
 				"contentType": "application/json",
