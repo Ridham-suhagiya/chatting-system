@@ -51,10 +51,10 @@ func LoginHandler() http.HandlerFunc {
 			utils.WriteIntoTheResponse(w, params)
 			return
 		}
-		// email := r.FormValue("email")
-		// password := r.FormValue("password")
+		email := r.FormValue("email")
+		password := r.FormValue("password")
 
-		user, err := userService.GetUserByEmailId("ridhamsuhagiya@gmail.com")
+		user, err := userService.GetUserByEmailId(email)
 		fmt.Println("this is not an erorr", user, err)
 		if err != nil {
 			headers := map[string]interface{}{
@@ -70,18 +70,18 @@ func LoginHandler() http.HandlerFunc {
 			return
 		}
 
-		// if !userService.ValidatePassword(user, password) {
-		// 	headers := map[string]interface{}{
-		// 		"statusCode":  http.StatusNotFound,
-		// 		"contentType": "application/json",
-		// 	}
-		// 	params := utils.ResponseParams{
-		// 		Header:  headers,
-		// 		Message: "Invalid user credentials",
-		// 	}
-		// 	utils.WriteIntoTheResponse(w, params)
-		// 	return
-		// }
+		if !userService.ValidatePassword(user, password) {
+			headers := map[string]interface{}{
+				"statusCode":  http.StatusNotFound,
+				"contentType": "application/json",
+			}
+			params := utils.ResponseParams{
+				Header:  headers,
+				Message: "Invalid user credentials",
+			}
+			utils.WriteIntoTheResponse(w, params)
+			return
+		}
 		userDetails := &objectTypes.LoginCredentials{
 			User: user,
 		}
