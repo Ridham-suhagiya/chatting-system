@@ -56,7 +56,7 @@ func LoginHandler() http.HandlerFunc {
 
 		user, err := userService.GetUserByEmailId(email)
 		fmt.Println("this is not an erorr", user, err)
-		if err != nil {
+		if err != nil && user == nil {
 			headers := map[string]interface{}{
 				"statusCode":  http.StatusNotFound,
 				"contentType": "application/json",
